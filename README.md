@@ -1,66 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## API 實作測驗
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## AsiaYo Exercise API
 
-## About Laravel
+### 專案建立說明
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+透過下述 docker 指令啟用服務：
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```bash
+docker compose up 
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+可透過 curl 指令測試服務回應：
 
-## Learning Laravel
+```bash
+curl -X POST http://localhost:8000/api/orders \
+     -H "Content-Type: application/json" \
+     -d '{
+           "id": "123",
+           "name": "John Doe",
+           "address": {
+               "city": "Taipei",
+               "district": "Xinyi",
+               "street": "123 Main St"
+           },
+           "price": 1500,
+           "currency": "USD"
+         }'
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 專案中的 SOLID 原則
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **單一職責原則 (Single Responsibility Principle, SRP)**
+    - 每個類別和函數都只負責一項職責。例如：`Request` 負責請求的欄位及資料型別驗證、 `Service` 負責處理業務邏輯，而 `Controller` 則管理請求及回應的整個流程。每個函數又在依職責劃分，例如在 `TWDOrderService` 中，`validateOrderData` 負責業務邏輯的資料檢查，而 `processOrder` 負責處理訂單的資料轉換。
 
-## Laravel Sponsors
+- **開放封閉原則 (Open/Closed Principle, OCP)**
+    - `OrderServiceInterface` 定義了一個介面，使得可以在不修改現有程式碼的情況下新增新的訂單處理服務。例如，若需要新增一個不同的貨幣處理邏輯，可以創建一個新的實現類別，如 `USDOrderService`，並實現其函數。
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **介面隔離原則 (Interface Segregation Principle, ISP)**
+    - `OrderServiceInterface` 只包含兩個方法 `validateOrderData` 和 `processOrder`，這些方法是具體服務所需要的。沒有定義過多的方法，使得實現這個介面的類別不會因為不需要的方法而變得複雜。
 
-### Premium Partners
+- **依賴倒置原則 (Dependency Inversion Principle, DIP)**
+    - `OrderController` 依賴於 `OrderServiceInterface` 這個抽象介面，而不是具體的 `TWDOrderService` 類別。這樣可以更容易替換具體的實現，使程式更加靈活和可測試。
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
 
-## Contributing
+## 資料庫測驗
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 題目一
 
-## Code of Conduct
+> 請寫出一條查詢語句 (SQL)，列出在 2023 年 5 月下訂的訂單，使用台幣付款且5月總金額最
+多的前 10 筆的旅宿 ID (bnb_id), 旅宿名稱 (bnb_name), 5 月總金額 (may_amount)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+下方為根據題目所下的 SQL 查詢指令：
 
-## Security Vulnerabilities
+```
+SELECT 
+    o.bnb_id,
+    b.name AS bnb_name,
+    SUM(o.amount) AS may_amount
+FROM 
+    orders o
+JOIN 
+    bnbs b ON o.bnb_id = b.id
+WHERE 
+    o.created_at BETWEEN '2023-05-01' AND '2023-05-31'
+    AND o.currency = 'TWD'
+GROUP BY 
+    o.bnb_id, b.name
+ORDER BY 
+    may_amount DESC
+LIMIT 10;
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 題目二
 
-## License
+> 在題目一的執行下，我們發現 SQL 執行速度很慢，您會怎麼去優化？請闡述您怎麼判斷與優化的方式。
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+要優化 SQL 查詢，以下是我會採取的幾個檢查步驟：
+
+### 1. **分析查詢執行狀況**
+
+首先，使用 `EXPLAIN` 來分析這個查詢的執行狀況，進一步了解查詢是如何被執行的，並找出潛在的瓶頸。
+
+```sql
+EXPLAIN SELECT 
+    o.bnb_id,
+    b.name AS bnb_name,
+    SUM(o.amount) AS may_amount
+FROM 
+    orders o
+JOIN 
+    bnbs b ON o.bnb_id = b.id
+WHERE 
+    o.created_at BETWEEN '2023-05-01' AND '2023-05-31'
+    AND o.currency = 'TWD'
+GROUP BY 
+    o.bnb_id, b.name
+ORDER BY 
+    may_amount DESC
+LIMIT 10;
+```
+
+### 2. **檢查和添加索引**
+
+根據分析結果，可以檢查是否需要為查詢中的表添加索引。例如：
+
+- 為 `orders` 表的 `created_at`、`currency` 和 `bnb_id` 列添加複合索引。
+
+```sql
+CREATE INDEX idx_orders_created_at_currency_bnb_id ON orders (created_at, currency, bnb_id);
+```
+
+### 3. **調整資料庫參數**
+
+根據伺服器的硬體配置和負載情況，調整資料庫參數（例如緩衝區大小、查詢快取等）來提高性能。
+
+### 4. **檢查硬體資源**
+
+檢查資料庫硬體的 CPU、記憶體使用狀況以及硬碟容量，例如：確保硬碟使用量在 70% 以下等。
+
+### 5. **考慮資料庫分區**
+
+如果 `orders` 表的數據量非常大，可以考慮資料將表分區，例如按日期分區，以提高查詢效率。
