@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        app()->bind(
+            'App\Services\OrderServiceInterface',
+            'App\Services\TWDOrderService'
+        );
     }
 
     /**
